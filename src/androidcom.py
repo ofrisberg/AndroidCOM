@@ -13,6 +13,7 @@ class AndroidCOM:
 		self.autoUnlockLock = autoUnlockLock
 		if self.autoUnlockLock: self.unlockScreen()
 		
+		
 	def __del__(self):
 		if self.autoUnlockLock: self.lockScreen()
 
@@ -149,6 +150,9 @@ class AndroidCOM:
 		self.runShell("settings put system screen_brightness_mode 0")
 		self.runShell("settings put system screen_brightness "+str(value)+"")
 		
+	def setBrightnessLow(self): self.setBrightness(0)
+	def setBrightnessMedium(self): self.setBrightness(125)
+		
 	def volumeUp(self,steps):
 		for i in range(steps): self.sendEvent("KEYCODE_VOLUME_UP")
 	def volumeDown(self,steps):
@@ -159,11 +163,27 @@ class AndroidCOM:
 	def mediaPlayPause(self): self.sendEvent("KEYCODE_MEDIA_PLAY_PAUSE")
 	def mediaNext(self): self.sendEvent("KEYCODE_MEDIA_NEXT")
 	def mediaPrevious(self): self.sendEvent("KEYCODE_MEDIA_PREVIOUS")
+	
+	def getScreenshotConfig(self):
+		filename = "tmp_androidcom_screen.png"
+		return {
+			'remote_file' : "/sdcard/Download/"+filename,
+			'local_path' : os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'tmp')),
+			'filename' : filename
+		}
+	
+	def getScreenshot(self):
+		scrConf = self.getScreenshotConfig()
+		self.runShell("screencap "+scrConf['remote_file'])
+		subprocess.run(self.adbpath+" pull "+scrConf['remote_file']+" "+scrConf['local_path'])
+		return os.path.join(scrConf['local_path'],scrConf['filename'])
 		
 #./adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp'
 #./adb shell dumpsys package r | grep 'android.settings'
 if __name__ == '__main__':
 	ac = AndroidCOM()
+	ac.getScreenshot()
+	
 	#ac.unlockScreen()
 	#ac.listApps()
 	#ac.listSystems()
