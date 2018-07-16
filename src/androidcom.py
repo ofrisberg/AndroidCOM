@@ -7,6 +7,8 @@ https://developer.android.com/reference/android/view/KeyEvent
 
 INSPIRATION
 https://grymoire.wordpress.com/2014/09/17/remote-input-shell-scripts-for-your-android-device/
+
+test comment
 """
 
 class AndroidCOM:
