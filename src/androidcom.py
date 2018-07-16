@@ -4,6 +4,9 @@ import os,sys,subprocess,time,re
 KEYCODES
 https://stackoverflow.com/questions/7789826/adb-shell-input-events
 https://developer.android.com/reference/android/view/KeyEvent
+
+INSPIRATION
+https://grymoire.wordpress.com/2014/09/17/remote-input-shell-scripts-for-your-android-device/
 """
 
 class AndroidCOM:
@@ -196,13 +199,23 @@ class AndroidCOM:
 		subprocess.run(self.adbpath+" pull "+scrConf['remote_file']+" "+scrConf['local_path'])
 		return os.path.join(scrConf['local_path'],scrConf['filename'])
 		
+	#0 & 2 - 0/180, 1 & 3 - +-90
+	#adb shell dumpsys input | grep SurfaceOrientation |  awk '{ print $2 }'
+	def getOrientation(self):
+		out = self.checkShell("dumpsys input | grep SurfaceOrientation")
+		return re.search("\sSurfaceOrientation:\s([0-9])\s", out).group(1)
+		
 #./adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp'
 #./adb shell dumpsys package r | grep 'android.settings'
+
+# adb shell dumpsys window | \
+#sed -n '/mUnrestrictedScreen/ s/^.*) \([0-9][0-9]*\)x\([0-9][0-9]*\)/\1 \2/p'
 if __name__ == '__main__':
 	ac = AndroidCOM()
 	#ac.getScreenshot()
 	
-	ac.toggleVibration()
+	#ac.toggleVibration()
+	print(ac.getOrientation())
 	
 	#ac.unlockScreen()
 	#ac.listApps()
