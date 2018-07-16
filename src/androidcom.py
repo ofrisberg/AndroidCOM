@@ -1,5 +1,5 @@
 import os,sys,subprocess,time,re
-
+import configsetup,devicestatus,sensorstats
 """
 KEYCODES
 https://stackoverflow.com/questions/7789826/adb-shell-input-events
@@ -7,27 +7,25 @@ https://developer.android.com/reference/android/view/KeyEvent
 
 INSPIRATION
 https://grymoire.wordpress.com/2014/09/17/remote-input-shell-scripts-for-your-android-device/
-
-test comment
 """
 
 class AndroidCOM:
-	def __init__(self, code=None, adbpath="adb", autoUnlockLock=False):
-		self.adbpath = adbpath
-		self.code = code
-		self.autoUnlockLock = autoUnlockLock
-		if self.autoUnlockLock: self.unlockScreen()
-		
+	def __init__(self):
+		self.cfg = configsetup.get()
+		self.ds = devicestatus.DeviceStatus()
+		self.ss = sensorstats.SensorStats()
+		if self.cfg['GENERAL'].getboolean('auto_auth'): 
+			self.unlockScreen()
 		
 	def __del__(self):
-		if self.autoUnlockLock: self.lockScreen()
+		if self.cfg['GENERAL'].getboolean('auto_auth'): self.lockScreen()
 
 	def runShell(self, cmd, st=0):
-		subprocess.run(self.adbpath+" shell "+cmd)
+		subprocess.run(self.cfg['PATHS']['adb']+" shell "+cmd)
 		time.sleep(st)
 		
 	def checkShell(self, cmd, st=0):
-		out = subprocess.check_output(self.adbpath+" shell "+cmd)
+		out = subprocess.check_output(self.cfg['PATHS']['adb']+" shell "+cmd)
 		time.sleep(st)
 		return out.decode("utf-8")
 		
@@ -60,16 +58,14 @@ class AndroidCOM:
 	def unlockScreen(self):
 		self.sendEvent("KEYCODE_WAKEUP")
 		self.sendEvent(82)
-		if self.code is None:
+		if self.cfg['GENERAL']['code'] == 'XXXX':
 			print("Error: Cannot unlock because code is not set")
 			return
-		self.sendText(self.code)
+		self.sendText(self.cfg['GENERAL']['code'])
 		self.sendEvent(66,0.7)
 		
 	def lockScreen(self):
 		self.sendEvent(26)
-		
-		
 
 	def startApp(self, appname, flag="-n"):
 		#self.runShell("monkey -p "+appname+" -c android.intent.category.LAUNCHER 1")
@@ -80,48 +76,9 @@ class AndroidCOM:
 		self.swipeLeft()
 		#self.runShell("am kill "+appname+"")
 
-	def statusPower(self):
-		out = self.checkShell("dumpsys power")
-		power = {}
-		power['display_off'] = ("mHoldingDisplaySuspendBlocker=false" in out)
-		power['is_powered'] = ("mIsPowered=true" in out)
-		power['battery_level'] = re.search("mBatteryLevel=([0-9]+)",out).group(1)
-		return power
-		
-	def statusNotifications(self):
-		#./adb shell dumpsys notification | egrep NotificationRecord | awk -F\| '{print $0}'
-		tmps = self.checkShell("dumpsys notification").split("\n")
-		notTexts = []
-		for tmp in tmps: 
-			if "NotificationRecord(" in tmp: notTexts.append(tmp.strip())
-		notifications = []
-		for notText in notTexts:
-			notification = {'app':'','tag':'','importance':'-1'}
-			notification['app'] = re.search("\spkg=([^\s]+)\s",notText).group(1)
-			notification['tag'] = re.search("\stag=([^\s]+)\s",notText).group(1)
-			notification['importance'] = re.search("\simportance=([^\s]+)\s",notText).group(1)
-			#print(notText)
-			#print(notification)
-			notifications.append(notification)
-		return notifications
-		
-	def statusWifi(self):
-		dump = self.checkShell("dumpsys wifi")
-		wifi = {'wifi_enabled': ("Wi-Fi is enabled" in dump)}
-		return wifi
-		
-	def statusBluetooth(self):
-		dump = self.checkShell("dumpsys bluetooth_manager")
-		blue = {'bluetooth_enabled': ("enabled: true" in dump)}
-		return blue
-		
-	def statusConnections(self):
-		dump = self.checkShell("settings list global")
-		return {
-			'wifi_enabled': ("wifi_on=1" in dump),
-			'bluetooth_enabled': ("bluetooth_on=1" in dump),
-			'airplane_enabled' : ("airplane_mode_on=1" in dump)
-		}
+	def statusPower(self): return self.ds.getPower(self.checkShell("dumpsys power"))
+	def statusNotifications(self): return self.ds.getNotifications(self.checkShell("dumpsys notification"))
+	def statusConnections(self): return self.ds.getConnections(self.checkShell("settings list global"))
 		
 	def toggleConnection(self,nrTabs):
 		self.startApp("android.settings.WIRELESS_SETTINGS", "-a")
@@ -173,8 +130,9 @@ class AndroidCOM:
 		self.runShell("settings put system screen_brightness_mode 0")
 		self.runShell("settings put system screen_brightness "+str(value)+"")
 		
-	def setBrightnessLow(self): self.setBrightness(0)
-	def setBrightnessMedium(self): self.setBrightness(125)
+	def setBrightnessLow(self): self.setBrightness(self.cfg['BRIGHTNESS']['low'])
+	def setBrightnessMedium(self): self.setBrightness(self.cfg['BRIGHTNESS']['medium'])
+	def setBrightnessHigh(self): self.setBrightness(self.cfg['BRIGHTNESS']['high'])
 		
 	def volumeUp(self,steps):
 		for i in range(steps): self.sendEvent("KEYCODE_VOLUME_UP")
@@ -198,7 +156,7 @@ class AndroidCOM:
 	def getScreenshot(self):
 		scrConf = self.getScreenshotConfig()
 		self.runShell("screencap "+scrConf['remote_file'])
-		subprocess.run(self.adbpath+" pull "+scrConf['remote_file']+" "+scrConf['local_path'])
+		subprocess.run(self.cfg['PATHS']['adb']+" pull "+scrConf['remote_file']+" "+scrConf['local_path'])
 		return os.path.join(scrConf['local_path'],scrConf['filename'])
 		
 	#0 & 2 - 0/180, 1 & 3 - +-90
@@ -217,14 +175,13 @@ if __name__ == '__main__':
 	#ac.getScreenshot()
 	
 	#ac.toggleVibration()
-	print(ac.getOrientation())
+	#print(ac.getOrientation())
 	
 	#ac.unlockScreen()
 	#ac.listApps()
 	#ac.listSystems()
 	
-	#conn = ac.statusConnections()
-	#print(conn)
+	#print(ac.statusPower())
 	
 	#ac.toggleBluetooth()
 	#ac.volumeDown(7)

@@ -1,14 +1,14 @@
 import os,sys,configparser
 
 """
-Generate a default config file
+Generate and get config file
 https://docs.python.org/3/library/configparser.html
 """
-def genConfig():
+def generate():
 	cfg = configparser.ConfigParser()
 	
 	cfg['GENERAL'] = {
-		'code' : '',
+		'code' : 'XXXX',
 		'auto_auth' : 'on',
 		'strict_mode' : 'off',
 		'quiet_mode' : 'off',
@@ -51,15 +51,26 @@ def genConfig():
 		'settings_wireless' : 'android.settings.WIRELESS_SETTINGS',
 	}
 	
-	return cfg
-
-def saveConfig(cfg, filename="config.ini"):
+	filename = getFilename()
 	with open(filename, 'w') as configfile:
 		cfg.write(configfile)
 	
-def init():
-	cfg = genConfig()
-	saveConfig(cfg)
+def get():
+	cfg = configparser.ConfigParser()
+	filename = getFilename()
+	if os.path.isfile(filename): 
+		cfg.read(filename)
+		return cfg
+	print("Error: Could not find config file '"+ filename +"'")
+	sys.exit()
+
+def getFilename():
+	return os.path.join(os.path.dirname( __file__ ), '..', 'config.ini')
 	
 if __name__ == '__main__':
-	init()
+	print("This script is not runnable")
+	
+	
+	
+	
+	

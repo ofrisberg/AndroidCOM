@@ -6,20 +6,17 @@ from androidcom import AndroidCOM
 
 """ 
 Example of how to use AndroidCOM with tkinter
-Run with "$ python gui.py code"
 """
 
 class Application(tk.Frame):
 	def __init__(self, master=None):
 		super().__init__(master)
 		
-		code = None
-		if len(sys.argv) > 1: code = sys.argv[1]
-		self.ac = AndroidCOM(code)
+		self.ac = AndroidCOM()
 		
-		self.total_width = 250
-		self.interval_image = 10000
-		self.interval_status = 4000
+		self.total_width = self.ac.cfg['GUI'].getint('window_width')
+		self.interval_image = self.ac.cfg['GUI'].getint('interval_image')
+		self.interval_status = self.ac.cfg['GUI'].getint('interval_status')
 		root.title("AndroidCOM")
 		
 		print("Starting GUI")
