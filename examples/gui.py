@@ -26,7 +26,8 @@ class Application(tk.Frame):
 		self.grid()
 		self.createMsg()
 		self.createImage()
-		self.createRadioButtons()
+		self.createMenu()
+		#self.createRadioButtons()
 		
 	def createMsg(self):
 		self.msgBox = tk.Message(root, width=self.total_width, text="GUI started")
@@ -60,40 +61,47 @@ class Application(tk.Frame):
 		t = threading.Thread(target=cmdtext,name="blabla_tkinter")
 		t.daemon = True
 		t.start()
+		
+	def onClickWifi(self):
+		if self.wifiVal: self.cmd(self.ac.enableWifi)
+		else: self.cmd(self.ac.disableWifi)
 	
-	def createRadioButtons(self):
+	def createMenu(self):
+		self.menubar = tk.Menu(root)
+		settingsmenu = tk.Menu(self.menubar, tearoff = 0)
+		self.createSettingsOptions(settingsmenu)
+		self.menubar.add_cascade(label="Settings", menu=settingsmenu)
+		root.config(menu=self.menubar)
+	
+	def toggleBrightness(self):
+		if self.brightVal.get(): self.cmd(self.ac.setBrightnessLow)
+		else: self.cmd(self.ac.setBrightnessMedium)
+	
+	def createSettingsOptions(self,settingsmenu):
 		connStatus = self.ac.statusConnections()
 		powerStatus = self.ac.statusPower()
 		
 		# Wifi-row
 		self.wifiVal = tk.BooleanVar()
 		self.wifiVal.set(connStatus['wifi_enabled'])
-		tk.Label(root, text="Wifi").grid(row=2,column=1)
-		tk.Radiobutton(root, text="On", variable=self.wifiVal, command=lambda:self.cmd(self.ac.enableWifi), value=True).grid(row=2,column=2)
-		tk.Radiobutton(root, text="Off", variable=self.wifiVal, command=lambda:self.cmd(self.ac.disableWifi), value=False).grid(row=2,column=3)
+		settingsmenu.add_checkbutton(label="Wifi", variable=self.wifiVal, command=lambda:self.cmd(self.ac.toggleWifi), onvalue=True, offvalue=False)
 		
 		# Bluetooth-row
 		self.blueVal = tk.BooleanVar()
 		self.blueVal.set(connStatus['bluetooth_enabled'])
-		tk.Label(root, text="Bluetooth").grid(row=3,column=1)
-		tk.Radiobutton(root, text="On", variable=self.blueVal, command=lambda:self.cmd(self.ac.enableBluetooth), value=True).grid(row=3,column=2)
-		tk.Radiobutton(root, text="Off", variable=self.blueVal, command=lambda:self.cmd(self.ac.disableBluetooth), value=False).grid(row=3,column=3)
+		settingsmenu.add_checkbutton(label="Bluetooth", variable=self.blueVal, command=lambda:self.cmd(self.ac.toggleBluetooth), onvalue=True, offvalue=False)
 
 		# Lock/Unlock-row
 		self.lockVal = tk.BooleanVar()
 		self.lockVal.set(powerStatus['display_off'])
-		tk.Label(root, text="Locker").grid(row=4,column=1)
-		tk.Radiobutton(root, text="Locked", variable=self.lockVal, command=lambda:self.cmd(self.ac.lockScreen), value=True).grid(row=4,column=2)
-		tk.Radiobutton(root, text="Unlocked", variable=self.lockVal, command=lambda:self.cmd(self.ac.unlockScreen), value=False).grid(row=4,column=3)
+		settingsmenu.add_checkbutton(label="Locker", variable=self.lockVal, command=lambda:self.cmd(self.ac.toggleScreen), onvalue=True, offvalue=False)
 		
 		# Brightness-row
 		self.brightVal = tk.BooleanVar()
 		self.brightVal.set(True)
-		root.after(self.interval_status, self.updateValues)
-		tk.Label(root, text="Brightness").grid(row=5,column=1)
-		tk.Radiobutton(root, text="Low", variable=self.brightVal, command=lambda:self.cmd(self.ac.setBrightnessLow), value=False).grid(row=5,column=2)
-		tk.Radiobutton(root, text="Mid", variable=self.brightVal, command=lambda:self.cmd(self.ac.setBrightnessMedium), value=True).grid(row=5,column=3)
+		settingsmenu.add_checkbutton(label="Brightness", variable=self.brightVal, command=self.toggleBrightness, onvalue=True, offvalue=False)
 		
+		root.after(self.interval_status, self.updateValues)
 	
 		
 	def updateValues(self):
@@ -107,8 +115,6 @@ class Application(tk.Frame):
 		self.updateMsg("Values updated")
 		root.after(self.interval_status, lambda:self.cmd(self.updateValues))
 		
-	def say_hi(self):
-		print("hi there, everyone!")
 
 root = tk.Tk()
 app = Application(master=root)

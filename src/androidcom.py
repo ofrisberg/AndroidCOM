@@ -40,11 +40,17 @@ class AndroidCOM:
 		self.runShell("input swipe " + args, st)
 	def swipeLeft(self): self.sendSwipe("800 1000 200 1000 100")
 		
-	def sendTap(self, x, y, st=0.4):
-		self.runShell("input tap "+str(x)+" "+str(y), st)
+	def sendTap(self, x, y=None, st=0.4):
+		if y is None: self.runShell("input tap "+str(x), st)
+		else: self.runShell("input tap "+str(x)+" "+str(y), st)
 		
 	def pressTab(self,nrTimes=1):
 		for i in range(nrTimes): self.sendEvent(61,0)
+		
+	def toggleScreen(self):
+		power = self.statusPower()
+		if power['display_off']: self.unlockScreen()
+		else: self.lockScreen()
 		
 	def unlockScreen(self):
 		self.sendEvent("KEYCODE_WAKEUP")
@@ -57,6 +63,8 @@ class AndroidCOM:
 		
 	def lockScreen(self):
 		self.sendEvent(26)
+		
+		
 
 	def startApp(self, appname, flag="-n"):
 		#self.runShell("monkey -p "+appname+" -c android.intent.category.LAUNCHER 1")
@@ -117,8 +125,13 @@ class AndroidCOM:
 		self.sendEvent(66)
 		self.stopApp()
 		
-	def toggleWifi(self): self.toggleConnection(2)
-	def toggleBluetooth(self): self.toggleConnection(4)
+	def toggleTopMenuSetting(self, xy):
+		self.sendSwipe("500 0 500 400")
+		self.sendTap(xy)
+		self.sendSwipe("500 400 500 0")
+		
+	def toggleWifi(self): self.toggleTopMenuSetting("135 180")
+	def toggleBluetooth(self): self.toggleTopMenuSetting("300 180")
 		
 		
 	def enableWifi(self):
@@ -144,6 +157,11 @@ class AndroidCOM:
 			self.toggleBluetooth()
 			return
 		print("Bluetooth already disabled")
+		
+	def toggleVibration(self):
+		self.sendSwipe("500 0 500 400")
+		self.sendTap("637 218")
+		self.sendSwipe("500 400 500 0")
 		
 	#! @param value ranges from 0-255
 	def setBrightness(self,value):
@@ -182,7 +200,9 @@ class AndroidCOM:
 #./adb shell dumpsys package r | grep 'android.settings'
 if __name__ == '__main__':
 	ac = AndroidCOM()
-	ac.getScreenshot()
+	#ac.getScreenshot()
+	
+	ac.toggleVibration()
 	
 	#ac.unlockScreen()
 	#ac.listApps()

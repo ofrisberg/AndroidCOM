@@ -14,5 +14,5 @@ if __name__ == '__main__':
 	while True:
 		#ac.sendTap(1760,1000) #battle
 		ac.sendTap(1500,1000) #replay
-		ac.sendTap(1340,360) #close 'skip wave'-popup
+		ac.sendTap(1340,360) #close 'skip wave'-popup if battle
 		time.sleep(1)
