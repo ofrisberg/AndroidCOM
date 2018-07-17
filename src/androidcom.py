@@ -170,6 +170,7 @@ class AndroidCOM:
 
 # adb shell dumpsys window | \
 #sed -n '/mUnrestrictedScreen/ s/^.*) \([0-9][0-9]*\)x\([0-9][0-9]*\)/\1 \2/p'
+
 if __name__ == '__main__':
 	ac = AndroidCOM()
 	#ac.getScreenshot()

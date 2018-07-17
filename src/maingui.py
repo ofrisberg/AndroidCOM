@@ -1,33 +1,32 @@
 import sys, threading, time
 import tkinter as tk
 from PIL import Image, ImageTk
-sys.path.append('../src')
 from androidcom import AndroidCOM
 
 """ 
-Example of how to use AndroidCOM with tkinter
+GUI for AndroidCOM with tkinter
 """
 
-class Application(tk.Frame):
+class MainGUI(tk.Frame):
 	def __init__(self, master=None):
 		super().__init__(master)
 		
+		self.root = master
 		self.ac = AndroidCOM()
 		
 		self.total_width = self.ac.cfg['GUI'].getint('window_width')
 		self.interval_image = self.ac.cfg['GUI'].getint('interval_image')
 		self.interval_status = self.ac.cfg['GUI'].getint('interval_status')
-		root.title("AndroidCOM")
+		self.root.title("AndroidCOM")
 		
 		print("Starting GUI")
 		self.grid()
 		self.createMsg()
 		self.createImage()
 		self.createMenu()
-		#self.createRadioButtons()
 		
 	def createMsg(self):
-		self.msgBox = tk.Message(root, width=self.total_width, text="GUI started")
+		self.msgBox = tk.Message(self.root, width=self.total_width, text="GUI started")
 		self.msgBox.grid(row=0,column=1,columnspan=3)
 		
 	def updateMsg(self,msg):
@@ -42,20 +41,20 @@ class Application(tk.Frame):
 		
 	def createImage(self):
 		self.ph = self.getImageTk()
-		self.imageLbl = tk.Label(root,image=self.ph)
+		self.imageLbl = tk.Label(self.root,image=self.ph)
 		self.imageLbl.image = self.ph
 		self.imageLbl.grid(row=1,column=1,columnspan=3)
-		root.after(self.interval_image, self.updateImage)
+		self.root.after(self.interval_image, self.updateImage)
 	
 	def updateImage(self):
 		self.updateMsg("Updating image...")
 		self.ph = self.getImageTk()
 		self.imageLbl.configure(image=self.ph)
-		root.after(self.interval_image, lambda:self.cmd(self.updateImage))
+		self.root.after(self.interval_image, lambda:self.cmd(self.updateImage))
 		self.updateMsg("Image updated")
 	
 	def cmd(self,cmdtext):
-		t = threading.Thread(target=cmdtext,name="blabla_tkinter")
+		t = threading.Thread(target=cmdtext,name="androidcom_thread")
 		t.daemon = True
 		t.start()
 		
@@ -64,11 +63,11 @@ class Application(tk.Frame):
 		else: self.cmd(self.ac.disableWifi)
 	
 	def createMenu(self):
-		self.menubar = tk.Menu(root)
+		self.menubar = tk.Menu(self.root)
 		settingsmenu = tk.Menu(self.menubar, tearoff = 0)
 		self.createSettingsOptions(settingsmenu)
 		self.menubar.add_cascade(label="Settings", menu=settingsmenu)
-		root.config(menu=self.menubar)
+		self.root.config(menu=self.menubar)
 	
 	def toggleBrightness(self):
 		if self.brightVal.get(): self.cmd(self.ac.setBrightnessLow)
@@ -98,7 +97,7 @@ class Application(tk.Frame):
 		self.brightVal.set(True)
 		settingsmenu.add_checkbutton(label="Brightness", variable=self.brightVal, command=self.toggleBrightness, onvalue=True, offvalue=False)
 		
-		root.after(self.interval_status, self.updateValues)
+		self.root.after(self.interval_status, self.updateValues)
 	
 		
 	def updateValues(self):
@@ -110,9 +109,15 @@ class Application(tk.Frame):
 		self.blueVal.set(connStatus['bluetooth_enabled'])
 		self.lockVal.set(powerStatus['display_off'])
 		self.updateMsg("Values updated")
-		root.after(self.interval_status, lambda:self.cmd(self.updateValues))
+		self.root.after(self.interval_status, lambda:self.cmd(self.updateValues))
 		
 
-root = tk.Tk()
-app = Application(master=root)
-app.mainloop()
+if __name__ == '__main__':
+	root = tk.Tk()
+	app = MainGUI(master=root)
+	app.mainloop()
+		
+		
+		
+		
+		
