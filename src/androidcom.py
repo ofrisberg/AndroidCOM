@@ -1,6 +1,9 @@
 import os,sys,subprocess,time,re
 import configsetup,devicestatus,sensorstats
 """
+ADB REFERENCE
+https://developer.android.com/studio/command-line/adb
+
 KEYCODES
 https://stackoverflow.com/questions/7789826/adb-shell-input-events
 https://developer.android.com/reference/android/view/KeyEvent
@@ -17,18 +20,23 @@ class AndroidCOM:
 		if self.cfg['GENERAL'].getboolean('auto_auth'): 
 			self.unlockScreen()
 		
-	def __del__(self):
-		if self.cfg['GENERAL'].getboolean('auto_auth'): self.lockScreen()
-
-	def runShell(self, cmd, st=0):
-		subprocess.run(self.cfg['PATHS']['adb']+" shell "+cmd)
-		time.sleep(st)
+	def checkAdb(self, cmd, st=0):
+		full_command = self.cfg['PATHS']['adb']+" "+cmd
+		out = subprocess.check_output(full_command)
+		if st > 0: time.sleep(st)
+		resp = out.decode("utf-8")
+		if self.cfg['MODES'].getboolean('quiet') is False:
+			print(full_command)
+		if self.cfg['MODES'].getboolean('verbose'):
+			print(resp)
+		return resp
 		
-	def checkShell(self, cmd, st=0):
-		out = subprocess.check_output(self.cfg['PATHS']['adb']+" shell "+cmd)
-		time.sleep(st)
-		return out.decode("utf-8")
+	def checkShell(self, cmd, st=0): 
+		return self.checkAdb("shell "+cmd, st)
 		
+	def runShell(self, cmd, st=0): 
+		out = self.checkShell(cmd,st)
+				
 	def listApps(self): self.runShell("pm list packages")
 	def listSystems(self): self.runShell('dumpsys | grep "DUMP OF SERVICE"')
 		
@@ -79,6 +87,8 @@ class AndroidCOM:
 	def statusPower(self): return self.ds.getPower(self.checkShell("dumpsys power"))
 	def statusNotifications(self): return self.ds.getNotifications(self.checkShell("dumpsys notification"))
 	def statusConnections(self): return self.ds.getConnections(self.checkShell("settings list global"))
+	def statusWindows(self): return self.ds.getWindows(self.checkShell("dumpsys window windows"))
+	def statusIp(self): return self.ds.getIp(self.checkShell("ifconfig wlan0"))
 		
 	def toggleConnection(self,nrTabs):
 		self.startApp("android.settings.WIRELESS_SETTINGS", "-a")
@@ -156,7 +166,7 @@ class AndroidCOM:
 	def getScreenshot(self):
 		scrConf = self.getScreenshotConfig()
 		self.runShell("screencap "+scrConf['remote_file'])
-		subprocess.run(self.cfg['PATHS']['adb']+" pull "+scrConf['remote_file']+" "+scrConf['local_path'])
+		pullRes = self.checkAdb("pull "+scrConf['remote_file']+" "+scrConf['local_path'])
 		return os.path.join(scrConf['local_path'],scrConf['filename'])
 		
 	#0 & 2 - 0/180, 1 & 3 - +-90
@@ -164,6 +174,9 @@ class AndroidCOM:
 	def getOrientation(self):
 		out = self.checkShell("dumpsys input | grep SurfaceOrientation")
 		return re.search("\sSurfaceOrientation:\s([0-9])\s", out).group(1)
+		
+	def __del__(self):
+		if self.cfg['GENERAL'].getboolean('auto_auth'): self.lockScreen()
 		
 #./adb shell dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp'
 #./adb shell dumpsys package r | grep 'android.settings'
@@ -183,6 +196,7 @@ if __name__ == '__main__':
 	#ac.listSystems()
 	
 	#print(ac.statusPower())
+	print(ac.statusIp())
 	
 	#ac.toggleBluetooth()
 	#ac.volumeDown(7)

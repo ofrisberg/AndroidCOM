@@ -34,3 +34,16 @@ class DeviceStatus:
 			'bluetooth_enabled': ("bluetooth_on=1" in text),
 			'airplane_enabled' : ("airplane_mode_on=1" in text)
 		}
+		
+	def getWindows(self, text):
+		tmps = text.split("\n")
+		windows = {}
+		for tmp in tmps:
+			if "mHoldScreenWindow" in tmp:
+				windows['current'] = re.search("\smHoldScreenWindow=(.+)$",tmp).group(1)
+		return windows
+		
+	def getIp(self, text):
+		ip = {}
+		ip['local_ip'] = re.search("\sinet addr:([^\s]+)\s",text).group(1)
+		return ip

@@ -11,40 +11,18 @@ class GrowCastleGUI(MainGUI):
 		self.gc = GrowCastle(self.ac)
 		
 	def createGCSection(self):
-		tk.Button(self.root, text="Launch", command=self.gcLaunch).grid(row=2, column=1)
+		tk.Button(self.root, text="Launch", command=lambda:self.gcStatusAndExec(self.gc.launch,"Launch")).grid(row=2, column=1)
 		
-		tk.Button(self.root, text="Replay", command=self.gcReplay).grid(row=2, column=2)
-		tk.Button(self.root, text="Battle", command=self.gcBattle).grid(row=3, column=2)
-		tk.Button(self.root, text="Stop", command=self.gcStop).grid(row=4, column=2)
+		tk.Button(self.root, text="Replay", command=lambda:self.gcStatusAndExec(self.gc.startReplay,"Replay loop")).grid(row=2, column=2)
+		tk.Button(self.root, text="Battle", command=lambda:self.gcStatusAndExec(self.gc.startBattle,"Battle loop")).grid(row=3, column=2)
+		tk.Button(self.root, text="Stop", command=lambda:self.gcStatusAndExec(self.gc.stop,"Stop")).grid(row=4, column=2)
 		
-		tk.Button(self.root, text="Save", command=self.gcSave).grid(row=2, column=3)
-		tk.Button(self.root, text="Close", command=self.gcClose).grid(row=3, column=3)
+		tk.Button(self.root, text="Save", command=lambda:self.gcStatusAndExec(self.gc.save,"Save")).grid(row=2, column=3)
+		tk.Button(self.root, text="Close", command=lambda:self.gcStatusAndExec(self.gc.close,"Close")).grid(row=3, column=3)
 		
-	def gcLaunch(self):
-		print("Launching...")
-		self.cmd(self.gc.launch)
-		
-	def gcSave(self):
-		print("Saving...")
-		self.cmd(self.gc.save)
-		
-	def gcClose(self):
-		print("Closing...")
-		self.cmd(self.gc.close)
-		
-	def gcReplay(self):
-		print("Starting replay...")
-		self.cmd(self.gc.startReplay)
-		
-	def gcBattle(self):
-		print("Starting battle...")
-		self.cmd(self.gc.startBattle)
-		
-	def gcStop(self):
-		print("Stopping...")
-		self.cmd(self.gc.stop)
-		
-		
+	def gcStatusAndExec(self,func,status):
+		self.updateMsg(status)
+		self.cmd(func)
 	
 if __name__ == '__main__':
 	root = tk.Tk()

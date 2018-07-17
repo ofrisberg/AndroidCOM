@@ -9,9 +9,7 @@ def generate():
 	
 	cfg['GENERAL'] = {
 		'code' : 'XXXX',
-		'auto_auth' : 'on',
-		'strict_mode' : 'off',
-		'quiet_mode' : 'off',
+		'auto_auth' : 'off',
 		'check_display' : 'on'
 	}
 	
@@ -19,6 +17,12 @@ def generate():
 		'project_dir' : os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..')),
 		'tmp_dir' : '${project_dir}/tmp',
 		'adb' : 'adb'
+	}
+	
+	cfg['MODES'] = {
+		'strict' : 'off',
+		'quiet' : 'off',
+		'verbose' : 'on'
 	}
 	
 	cfg['SCREEN_LIMITS'] = {

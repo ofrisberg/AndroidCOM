@@ -16,30 +16,49 @@ class GrowCastle:
 		self.turn_on_2x = True
 		self.turned_on_2x = False
 		
+	def msg(self,text):
+		print(text)
+	
+	def isFocused(self):
+		windows = self.ac.statusWindows()
+		return 'com.raongames.growcastle' in windows['current']
 	
 	def startBattle(self):
+		self.msg("Starting battle...")
 		self.mode = 'battle'
 		self.start()
 		
 	def startReplay(self):
+		self.msg("Starting replay...")
 		self.mode = 'replay'
 		self.start()
 	
 	def start(self):
+		if self.is_running:
+			self.msg("Error: Already started")
+			return
+		if self.isFocused() is False:
+			self.msg("Error: Window not focused")
+			return
 		self.is_running = True
 		self.starttime = datetime.now()
 		self.loop(1)
 		
 	def stop(self):
+		self.msg("Stopping...")
+		if self.is_running is False:
+			self.msg("Error: Already stopped")
+			return
 		self.is_running = False
 		diff_time = (datetime.now()-self.starttime).total_seconds()
-		print("Playtime",diff_time/60,"minutes")
+		minutes = diff_time/60
+		self.msg("Playtime "+str(minutes)+" minutes")
 	
 	def loop(self,i):
 		if self.is_running is False: 
-			print("Looped stopped")
+			self.msg("Loop stopped")
 			return
-		print("--","Timestep",i,"--")
+		self.msg("-- Timestep "+str(i)+" --")
 		if self.mode == 'battle':
 			self.timestepBattle(i)
 		elif self.mode == 'replay':
@@ -49,6 +68,7 @@ class GrowCastle:
 		
 	def timestepReplay(self,i):
 		if self.turn_on_2x and i == 3 and self.turned_on_2x is False:
+			self.msg("Pressing 2x (double speed)")
 			self.press2x()
 			self.turned_on_2x = True
 		self.pressReplay()
@@ -57,13 +77,21 @@ class GrowCastle:
 	def timestepBattle(self,i):
 		self.pressBattle()
 		self.pressCloseSkipWave()
-		time.sleep(50)
+		time.sleep(60)
 		
 	def launch(self):
+		self.msg("Launching game...")
+		if self.isFocused():
+			self.msg("Error: Window already focused")
+			return
 		self.ac.runShell("monkey -p com.raongames.growcastle -c android.intent.category.LAUNCHER 1")
 		time.sleep(10)
 		
 	def save(self):
+		self.msg("Saving game...")
+		if self.isFocused() is False:
+			self.msg("Error: Window not focused")
+			return
 		#self.pressCloseMenuAd()
 		self.pressSaveMenu()
 		self.pressSavePopup()
@@ -72,6 +100,10 @@ class GrowCastle:
 		self.pressSaveOk()
 		
 	def close(self):
+		self.msg("Closing game...")
+		if self.isFocused() is False:
+			self.msg("Error: Window not focused")
+			return
 		self.ac.sendEvent("KEYCODE_APP_SWITCH")
 		self.ac.sendSwipe("1200 500 500 500 100")
 		
