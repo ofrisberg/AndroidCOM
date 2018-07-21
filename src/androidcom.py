@@ -155,19 +155,14 @@ class AndroidCOM:
 	def mediaNext(self): self.sendEvent("KEYCODE_MEDIA_NEXT")
 	def mediaPrevious(self): self.sendEvent("KEYCODE_MEDIA_PREVIOUS")
 	
-	def getScreenshotConfig(self):
-		filename = "tmp_androidcom_screen.png"
-		return {
-			'remote_file' : "/sdcard/Download/"+filename,
-			'local_path' : os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'tmp')),
-			'filename' : filename
-		}
-	
 	def getScreenshot(self):
-		scrConf = self.getScreenshotConfig()
-		self.runShell("screencap "+scrConf['remote_file'])
-		pullRes = self.checkAdb("pull "+scrConf['remote_file']+" "+scrConf['local_path'])
-		return os.path.join(scrConf['local_path'],scrConf['filename'])
+		filename = self.cfg['SCREEN_CAPTURE'].get('filename')
+		remote_file = os.path.join(self.cfg['SCREEN_CAPTURE'].get('remote_dir'),filename)
+		self.runShell("screencap "+remote_file)
+		pullRes = self.checkAdb("pull "+remote_file+" "+self.cfg['SCREEN_CAPTURE'].get('local_dir'))
+		res = os.path.join(self.cfg['SCREEN_CAPTURE'].get('local_dir'),filename)
+		print(res)
+		return res
 		
 	#0 & 2 - 0/180, 1 & 3 - +-90
 	#adb shell dumpsys input | grep SurfaceOrientation |  awk '{ print $2 }'

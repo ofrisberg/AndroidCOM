@@ -33,7 +33,7 @@ def generate():
 	}
 	
 	cfg['SCREEN_CAPTURE'] = {
-		'filename' : 'tmp_androidcom_screen',
+		'filename' : 'tmp_androidcom_screen.png',
 		'remote_dir' : '/sdcard/Download/',
 		'local_dir' : '${PATHS:tmp_dir}',
 	}
@@ -60,7 +60,7 @@ def generate():
 		cfg.write(configfile)
 	
 def get():
-	cfg = configparser.ConfigParser()
+	cfg = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 	filename = getFilename()
 	if os.path.isfile(filename): 
 		cfg.read(filename)

@@ -2,6 +2,7 @@ import sys,time
 from datetime import datetime
 sys.path.append('../src')
 from androidcom import AndroidCOM
+import image2text
 
 """
 Example of how to use AndroidCOM
@@ -67,10 +68,6 @@ class GrowCastle:
 		self.loop(i+1)
 		
 	def timestepReplay(self,i):
-		if self.turn_on_2x and i == 3 and self.turned_on_2x is False:
-			self.msg("Pressing 2x (double speed)")
-			self.press2x()
-			self.turned_on_2x = True
 		self.pressReplay()
 		time.sleep(2)
 		
@@ -107,6 +104,18 @@ class GrowCastle:
 		self.ac.sendEvent("KEYCODE_APP_SWITCH")
 		self.ac.sendSwipe("1200 500 500 500 100")
 		
+	def stats(self):
+		if self.isFocused() is False:
+			self.msg("Error: Window not focused")
+			return
+		imgurl = self.ac.getScreenshot()
+		text = image2text.get(imgurl,True,True)
+		print(text)
+		
+	def switch2golddeck(self):
+		#continue here
+		pass
+		
 	def pressBattle(self): self.ac.sendTap(1760,1000)
 	def pressCloseSkipWave(self): self.ac.sendTap(1340,360) #close 'skip wave'-popup if battle
 	def pressReplay(self): self.ac.sendTap(1500,1000)
@@ -124,10 +133,11 @@ if __name__ == '__main__':
 	#ac.unlockScreen()
 	gc = GrowCastle(ac)
 	#gc.launch()
-	gc.startReplay()
+	gc.stats()
+	#gc.startReplay()
 	
 	# will never run if start is called
-	gc.close()
+	#gc.close()
 
 		
 		

@@ -15,7 +15,9 @@ class GrowCastleGUI(MainGUI):
 		
 		tk.Button(self.root, text="Replay", command=lambda:self.gcStatusAndExec(self.gc.startReplay,"Replay loop")).grid(row=2, column=2)
 		tk.Button(self.root, text="Battle", command=lambda:self.gcStatusAndExec(self.gc.startBattle,"Battle loop")).grid(row=3, column=2)
-		tk.Button(self.root, text="Stop", command=lambda:self.gcStatusAndExec(self.gc.stop,"Stop")).grid(row=4, column=2)
+		tk.Button(self.root, text="2X", command=lambda:self.gcStatusAndExec(self.gc.switch2golddeck,"Gold deck")).grid(row=4, column=2)
+		tk.Button(self.root, text="2X", command=lambda:self.gcStatusAndExec(self.gc.press2x,"2X")).grid(row=4, column=2)
+		tk.Button(self.root, text="Stop", command=lambda:self.gcStatusAndExec(self.gc.stop,"Stop")).grid(row=5, column=2)
 		
 		tk.Button(self.root, text="Save", command=lambda:self.gcStatusAndExec(self.gc.save,"Save")).grid(row=2, column=3)
 		tk.Button(self.root, text="Close", command=lambda:self.gcStatusAndExec(self.gc.close,"Close")).grid(row=3, column=3)
