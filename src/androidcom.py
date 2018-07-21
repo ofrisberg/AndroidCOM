@@ -25,10 +25,8 @@ class AndroidCOM:
 		out = subprocess.check_output(full_command)
 		if st > 0: time.sleep(st)
 		resp = out.decode("utf-8")
-		if self.cfg['MODES'].getboolean('quiet') is False:
-			print(full_command)
 		if self.cfg['MODES'].getboolean('verbose'):
-			print(resp)
+			print(full_command)
 		return resp
 		
 	def checkShell(self, cmd, st=0): 
@@ -161,7 +159,6 @@ class AndroidCOM:
 		self.runShell("screencap "+remote_file)
 		pullRes = self.checkAdb("pull "+remote_file+" "+self.cfg['SCREEN_CAPTURE'].get('local_dir'))
 		res = os.path.join(self.cfg['SCREEN_CAPTURE'].get('local_dir'),filename)
-		print(res)
 		return res
 		
 	#0 & 2 - 0/180, 1 & 3 - +-90

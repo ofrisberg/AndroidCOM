@@ -45,11 +45,12 @@ class MainGUI(tk.Frame):
 		self.imageLbl.grid(row=1,column=1,columnspan=3)
 		self.root.after(self.interval_image, self.updateImage)
 	
-	def updateImage(self):
+	def updateImage(self,repeat=True):
 		#self.updateMsg("Updating image...")
 		self.ph = self.getImageTk()
 		self.imageLbl.configure(image=self.ph)
-		self.root.after(self.interval_image, lambda:self.cmd(self.updateImage))
+		if repeat:
+			self.root.after(self.interval_image, lambda:self.cmd(self.updateImage))
 		#self.updateMsg("Image updated")
 	
 	def cmd(self,cmdtext):

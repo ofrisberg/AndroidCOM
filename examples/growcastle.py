@@ -1,8 +1,8 @@
-import sys,time
+import os,sys,time,pytesseract,cv2,re
 from datetime import datetime
 sys.path.append('../src')
 from androidcom import AndroidCOM
-import image2text
+from PIL import Image
 
 """
 Example of how to use AndroidCOM
@@ -108,24 +108,70 @@ class GrowCastle:
 		if self.isFocused() is False:
 			self.msg("Error: Window not focused")
 			return
+		
+		self.pressAchieveMenu()
+		time.sleep(2)
 		imgurl = self.ac.getScreenshot()
-		text = image2text.get(imgurl,True,True)
-		print(text)
+		
+		img = Image.open(imgurl)
+		area = (1200, 532,1823, 647) #left,upper,right,lower
+		cropped_img = img.crop(area)
+		filename_achieve = os.path.join(self.ac.cfg['SCREEN_CAPTURE']['local_dir'],'achieve.png')
+		cropped_img.save(filename_achieve)
+		text = self.image2text(filename_achieve,True,True)
+		
+		reres = re.search("([0-9]+)\s([0-9]+)",text)
+		if reres:
+			score = reres.group(1)
+			wave = reres.group(2)
+			print('Wave',wave)
+			print('Score',score)
+		else: print("Regex failed")
+		
+		self.pressCloseAchieve()
+		
+	def image2text(self,url,doGray=True,doBlur=True):
+		gray = cv2.imread(url)
+		if doGray:
+			gray = cv2.cvtColor(gray, cv2.COLOR_BGR2GRAY)
+		if doBlur:
+			gray = cv2.medianBlur(gray, 3)
+		filename = str(os.getpid())+".png"
+		cv2.imwrite(filename, gray)
+		text = pytesseract.image_to_string(Image.open(filename))
+		os.remove(filename)
+		return text
 		
 	def switch2golddeck(self):
-		#continue here
-		pass
+		if self.isFocused() is False:
+			self.msg("Error: Window not focused")
+			return
+		self.pressDeckMenu()
+		self.pressGoldDeck()
+		
+	def quitwave(self):
+		if self.isFocused() is False:
+			self.msg("Error: Window not focused")
+			return
+		self.pressQuitWave()
+		self.pressConfirmQuitWave()
 		
 	def pressBattle(self): self.ac.sendTap(1760,1000)
 	def pressCloseSkipWave(self): self.ac.sendTap(1340,360) #close 'skip wave'-popup if battle
 	def pressReplay(self): self.ac.sendTap(1500,1000)
 	def press2x(self): self.ac.sendTap(100,1000)
 	def pressCloseMenuAd(self): self.ac.sendTap(1065,830)
+	def pressDeckMenu(self): self.ac.sendTap(700,1000)
+	def pressGoldDeck(self): self.ac.sendTap(700,400)
 	def pressSaveMenu(self): self.ac.sendTap(400,1000)
 	def pressSavePopup(self): self.ac.sendTap(1230,660)
 	def pressSavePopup2(self): self.ac.sendTap(1150,890)
 	def pressSaveEmail(self): self.ac.sendTap(900,360)
 	def pressSaveOk(self): self.ac.sendTap(1400,950)
+	def pressQuitWave(self): self.ac.sendTap(250,1000)
+	def pressConfirmQuitWave(self): self.ac.sendTap(1200,950)
+	def pressAchieveMenu(self): self.ac.sendTap(230,1000)
+	def pressCloseAchieve(self): self.ac.sendTap(1840,110)
 	
 if __name__ == '__main__':
 	
