@@ -156,6 +156,7 @@ class GrowCastle:
 		self.pressQuitWave()
 		self.pressConfirmQuitWave()
 		
+	def pressHell(self): self.ac.sendTap(1230,1000)
 	def pressBattle(self): self.ac.sendTap(1760,1000)
 	def pressCloseSkipWave(self): self.ac.sendTap(1340,360) #close 'skip wave'-popup if battle
 	def pressReplay(self): self.ac.sendTap(1500,1000)
@@ -172,6 +173,17 @@ class GrowCastle:
 	def pressConfirmQuitWave(self): self.ac.sendTap(1200,950)
 	def pressAchieveMenu(self): self.ac.sendTap(230,1000)
 	def pressCloseAchieve(self): self.ac.sendTap(1840,110)
+	def pressUpgradeCastle(self): self.ac.sendTap(1600,200)
+	def pressUpgradeArcher(self): self.ac.sendTap(1600,350)
+	def pressH1(self): self.ac.sendTap(450,550)
+	def pressH2(self): self.ac.sendTap(570,550)
+	def pressH3(self): self.ac.sendTap(680,550)
+	def pressH4(self): self.ac.sendTap(450,420)
+	def pressH5(self): self.ac.sendTap(570,420)
+	def pressH6(self): self.ac.sendTap(680,420)
+	def pressH7(self): self.ac.sendTap(450,280)
+	def pressH8(self): self.ac.sendTap(570,280)
+	def pressH9(self): self.ac.sendTap(680,280)
 	
 if __name__ == '__main__':
 	

@@ -43,16 +43,15 @@ class MainGUI(tk.Frame):
 		self.imageLbl = tk.Label(self.root,image=self.ph)
 		self.imageLbl.image = self.ph
 		self.imageLbl.grid(row=1,column=1,columnspan=3)
-		self.root.after(self.interval_image, self.updateImage)
+		if self.ac.cfg['GUI'].getboolean('autopull_image'):
+			self.root.after(self.interval_image, self.updateImage)
 	
 	def updateImage(self,repeat=True):
-		#self.updateMsg("Updating image...")
 		self.ph = self.getImageTk()
 		self.imageLbl.configure(image=self.ph)
 		if repeat:
 			self.root.after(self.interval_image, lambda:self.cmd(self.updateImage))
-		#self.updateMsg("Image updated")
-	
+		
 	def cmd(self,cmdtext):
 		t = threading.Thread(target=cmdtext,name="androidcom_thread")
 		t.daemon = True

@@ -22,7 +22,7 @@ def generate():
 	cfg['MODES'] = {
 		'strict' : 'off',
 		'quiet' : 'off',
-		'verbose' : 'on'
+		'verbose' : 'off'
 	}
 	
 	cfg['SCREEN_LIMITS'] = {
@@ -46,9 +46,10 @@ def generate():
 	}
 	
 	cfg['GUI'] = {
-		'window_width' : '250',
-		'interval_image' : '10000',
+		'window_width' : '300',
 		'interval_status' : '4000',
+		'autopull_image' : 'off',
+		'interval_image' : '10000',
 	}
 	
 	cfg['APPS'] = {
