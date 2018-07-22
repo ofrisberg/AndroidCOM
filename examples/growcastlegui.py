@@ -5,6 +5,11 @@ from maingui import MainGUI
 from androidcom import AndroidCOM
 from growcastle import GrowCastle
 
+"""
+tkinter keycodes
+http://infohost.nmt.edu/tcc/help/pubs/tkinter/web/key-names.html
+"""
+
 class GrowCastleGUI(MainGUI):
 	def __init__(self, master=None):
 		super().__init__(master)

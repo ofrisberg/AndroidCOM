@@ -74,7 +74,10 @@ class GrowCastle:
 	def timestepBattle(self,i):
 		self.pressBattle()
 		self.pressCloseSkipWave()
-		time.sleep(60)
+		for i in range(2):
+			time.sleep(10)
+			self.burst()
+		time.sleep(30)
 		
 	def launch(self):
 		self.msg("Launching game...")
@@ -156,6 +159,16 @@ class GrowCastle:
 		self.pressQuitWave()
 		self.pressConfirmQuitWave()
 		
+	def burst(self):
+		#btime = datetime.now()
+		self.pressH1()
+		self.pressH2()
+		self.pressH3()
+		self.pressH4()
+		self.pressH5()
+		#diff_time = (datetime.now()-btime).total_seconds()
+		#print(diff_time,"seconds")
+		
 	def pressHell(self): self.ac.sendTap(1230,1000)
 	def pressBattle(self): self.ac.sendTap(1760,1000)
 	def pressCloseSkipWave(self): self.ac.sendTap(1340,360) #close 'skip wave'-popup if battle
@@ -175,15 +188,18 @@ class GrowCastle:
 	def pressCloseAchieve(self): self.ac.sendTap(1840,110)
 	def pressUpgradeCastle(self): self.ac.sendTap(1600,200)
 	def pressUpgradeArcher(self): self.ac.sendTap(1600,350)
-	def pressH1(self): self.ac.sendTap(450,550)
-	def pressH2(self): self.ac.sendTap(570,550)
-	def pressH3(self): self.ac.sendTap(680,550)
-	def pressH4(self): self.ac.sendTap(450,420)
-	def pressH5(self): self.ac.sendTap(570,420)
-	def pressH6(self): self.ac.sendTap(680,420)
-	def pressH7(self): self.ac.sendTap(450,280)
-	def pressH8(self): self.ac.sendTap(570,280)
-	def pressH9(self): self.ac.sendTap(680,280)
+	def pressH1(self): self.tap(450,550)
+	def pressH2(self): self.tap(570,550)
+	def pressH3(self): self.tap(680,550)
+	def pressH4(self): self.tap(450,420)
+	def pressH5(self): self.tap(570,420)
+	def pressH6(self): self.tap(680,420)
+	def pressH7(self): self.tap(450,280)
+	def pressH8(self): self.tap(570,280)
+	def pressH9(self): self.tap(680,280)
+	
+	def tap(self,x,y):
+		self.ac.sendTap(x,y,0)
 	
 if __name__ == '__main__':
 	
@@ -191,8 +207,8 @@ if __name__ == '__main__':
 	#ac.unlockScreen()
 	gc = GrowCastle(ac)
 	#gc.launch()
-	gc.stats()
-	#gc.startReplay()
+	#gc.stats()
+	gc.startBattle()
 	
 	# will never run if start is called
 	#gc.close()
