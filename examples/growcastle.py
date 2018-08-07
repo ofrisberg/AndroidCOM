@@ -33,6 +33,11 @@ class GrowCastle:
 		self.msg("Starting replay...")
 		self.mode = 'replay'
 		self.start()
+		
+	def startRedDragon(self):
+		self.msg("Starting red dragon...")
+		self.mode = 'reddragon'
+		self.start()
 	
 	def start(self):
 		if self.is_running:
@@ -64,6 +69,8 @@ class GrowCastle:
 			self.timestepBattle(i)
 		elif self.mode == 'replay':
 			self.timestepReplay(i)
+		elif self.mode == 'reddragon':
+			self.timestepRedDragon(i)
 		else: sys.exit("No such GrowCastle mode")
 		self.loop(i+1)
 		
@@ -77,7 +84,18 @@ class GrowCastle:
 		for i in range(2):
 			time.sleep(10)
 			self.burst()
-		time.sleep(30)
+		time.sleep(33)
+		
+	def timestepRedDragon(self,i):
+		self.pressDragonMenu()
+		self.pressRedDragon()
+		self.pressRedDragon2()
+		time.sleep(1)
+		self.burst()
+		time.sleep(10)
+		self.burst()
+		time.sleep(18)
+		self.pressDragonGet()
 		
 	def launch(self):
 		self.msg("Launching game...")
@@ -166,8 +184,11 @@ class GrowCastle:
 		self.pressH3()
 		self.pressH4()
 		self.pressH5()
+		self.pressH9()
 		#diff_time = (datetime.now()-btime).total_seconds()
 		#print(diff_time,"seconds")
+		
+	
 		
 	def pressHell(self): self.ac.sendTap(1230,1000)
 	def pressBattle(self): self.ac.sendTap(1760,1000)
@@ -197,6 +218,10 @@ class GrowCastle:
 	def pressH7(self): self.tap(450,280)
 	def pressH8(self): self.tap(570,280)
 	def pressH9(self): self.tap(680,280)
+	def pressDragonMenu(self): self.ac.sendTap(930,340)
+	def pressRedDragon(self): self.ac.sendTap(1500,560)
+	def pressRedDragon2(self): self.ac.sendTap(1720,580)
+	def pressDragonGet(self): self.ac.sendTap(1125,800)
 	
 	def tap(self,x,y):
 		self.ac.sendTap(x,y,0)
@@ -208,7 +233,7 @@ if __name__ == '__main__':
 	gc = GrowCastle(ac)
 	#gc.launch()
 	#gc.stats()
-	gc.startBattle()
+	gc.startRedDragon()
 	
 	# will never run if start is called
 	#gc.close()
